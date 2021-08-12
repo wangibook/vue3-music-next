@@ -3,7 +3,14 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+import Vant from 'vant';
+import 'vant/lib/index.css';
+
 // 引入全局样式文件
 import '@/assets/scss/index.scss'
 
-createApp(App).use(store).use(router).mount('#app')
+createApp(App)
+.use(store)
+.use(router)
+.use(Vant)
+.mount('#app')
