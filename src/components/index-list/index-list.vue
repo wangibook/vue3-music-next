@@ -13,6 +13,18 @@
   <div class="fixed" :style="fixedStyle">
     <div class="fixed-title">{{fixedTitle}}</div>
   </div>
+  <div class="shortcut">
+    <ul>
+      <li
+        v-for="(item, index) in shortcutList"
+        :key="item"
+        :data-index="index"
+        class="item"
+        :class="{'current':currentIndex===index}">
+        {{item}}
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
@@ -54,6 +66,12 @@ export default {
       }
     })
 
+    const shortcutList = computed(() => {
+      return props.data.map(item => {
+        return item.title
+      })
+    })
+
     onMounted(() => {
       window.addEventListener('scroll',handleScroll,true)
     })
@@ -92,7 +110,9 @@ export default {
     return {
       groupRef,
       fixedTitle,
-      fixedStyle
+      fixedStyle,
+      currentIndex,
+      shortcutList
     }
   }
 }
@@ -144,6 +164,27 @@ export default {
     font-size: $font-size-small;
     color: $color-text-l;
     background: $color-highlight-background;
+  }
+}
+.shortcut{
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: 20px;
+  padding: 20px 0;
+  border-radius: 10px;
+  text-align: center;
+  background: $color-background-d;
+  font-family: Helvetica;
+  .item {
+    padding: 3px;
+    line-height: 1;
+    color: $color-text-l;
+    font-size: $font-size-small;
+    &.current {
+      color: $color-theme
+    }
   }
 }
 </style>
