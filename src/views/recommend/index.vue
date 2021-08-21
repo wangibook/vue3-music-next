@@ -1,6 +1,6 @@
 <template>
-  <div class="recommend">
-    <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
+  <div class="recommend" v-loading="loading">
+    <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white" v-if="sliders.length">
       <van-swipe-item v-for="item in sliders" :key="item.id">
         <a :href="item.link">
           <img :src="item.pic"/>
@@ -8,7 +8,7 @@
       </van-swipe-item>
     </van-swipe>
     <div class="recommend-list">
-      <h1 class="list-title">热门歌单推荐</h1>
+      <h1 class="list-title" v-show="!loading">热门歌单推荐</h1>
       <ul>
         <li
           class="item"
@@ -17,7 +17,7 @@
           @click="selectItem(item)"
         >
           <div class="icon">
-            <img width="60" height="60" :src="item.pic">
+            <img width="60" height="60" v-lazy="item.pic">
           </div>
           <div class="text">
             <h2 class="name">{{ item.username }}</h2>
@@ -36,6 +36,11 @@ export default {
     return {
       sliders: [],
       albums: [],
+    }
+  },
+  computed: {
+    loading() {
+      return !this.sliders.length && !this.albums.length
     }
   },
   mounted() {
