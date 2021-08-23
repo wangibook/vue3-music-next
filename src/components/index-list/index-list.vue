@@ -19,7 +19,8 @@
   </div>
   <div 
     class="shortcut"
-    @click="handleClickShortcut">
+    @touchstart.stop.prevent="handleClickShortcut"
+    @touchmove.stop.prevent="onShortcutTouchMove">
     <ul>
       <li
         v-for="(item, index) in shortcutList"
@@ -45,7 +46,8 @@ export default {
     }
   },
   setup(props) {
-    const TITLE_HEIGHT = 30
+    const TITLE_HEIGHT = 30      // 标题高度
+    const ANCHOR_HEIGHT = 18    // 字母高度
     const groupRef = ref(null)
     const listHeights = ref([])
     const currentIndex = ref(0)
@@ -112,16 +114,30 @@ export default {
         listHeightsVal.push(height)
       }
     }
-
+    const touch = {}
     const handleClickShortcut = (e) => {
-      const element = groupRef.value
-      // 当前点击的字母
+      touch.y1 = e.touches[0].pageY
+      // 当前点击的字母下标
       const letterIndex = parseInt(e.target.dataset.index)
       currentIndex.value = letterIndex
-      // 点击对应的目标区域
-      const targetEl = element.children[letterIndex]
+      touch.anchorIndex = letterIndex
+      scrollTo(letterIndex)
+    }
+
+    const onShortcutTouchMove = (e) => {
+      touch.y2 = e.touches[0].pageY
+      const diffIndex = (touch.y2 - touch.y1) / ANCHOR_HEIGHT
+      const letterIndex = parseInt(touch.anchorIndex + diffIndex)
+      scrollTo(letterIndex)
+    }
+
+    // 提取的公共滚动函数
+    const scrollTo = (index) => {
+      if(index < 0 || index > shortcutList.value.length - 1) return
+      const element = groupRef.value
+      // 对应的目标区域
+      const targetEl = element.children[index]
       // 滚动到目标区域
-      
       element.scrollTo(0, targetEl.offsetTop);
     }
 
@@ -131,7 +147,8 @@ export default {
       fixedStyle,
       currentIndex,
       shortcutList,
-      handleClickShortcut
+      handleClickShortcut,
+      onShortcutTouchMove
     }
   }
 }
@@ -191,7 +208,6 @@ export default {
   right: 4px;
   transform: translateY(-50%);
   width: 20px;
-  padding: 20px 0;
   border-radius: 10px;
   text-align: center;
   background: $color-background-d;
