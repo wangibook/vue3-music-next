@@ -1,6 +1,10 @@
 <template>
   <ul class="index-list" ref="groupRef">
-    <li class="group" v-for="(group,index) in data" :key="index">
+    <li 
+      class="group" 
+      v-for="(group,index) in data" 
+      :key="index" 
+      :group-index="index">
       <h2 class="title">{{group.title}}</h2>
       <ul v-for="item in group.list" :key="item.id">
         <li class="item">
@@ -13,7 +17,9 @@
   <div class="fixed" :style="fixedStyle">
     <div class="fixed-title">{{fixedTitle}}</div>
   </div>
-  <div class="shortcut">
+  <div 
+    class="shortcut"
+    @click="handleClickShortcut">
     <ul>
       <li
         v-for="(item, index) in shortcutList"
@@ -107,12 +113,25 @@ export default {
       }
     }
 
+    const handleClickShortcut = (e) => {
+      const element = groupRef.value
+      // 当前点击的字母
+      const letterIndex = parseInt(e.target.dataset.index)
+      currentIndex.value = letterIndex
+      // 点击对应的目标区域
+      const targetEl = element.children[letterIndex]
+      // 滚动到目标区域
+      
+      element.scrollTo(0, targetEl.offsetTop);
+    }
+
     return {
       groupRef,
       fixedTitle,
       fixedStyle,
       currentIndex,
-      shortcutList
+      shortcutList,
+      handleClickShortcut
     }
   }
 }
