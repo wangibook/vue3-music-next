@@ -7,7 +7,7 @@
       :group-index="index">
       <h2 class="title">{{group.title}}</h2>
       <ul v-for="item in group.list" :key="item.id">
-        <li class="item">
+        <li class="item" @click="onItemClick(item)">
           <img class="avatar" v-lazy="item.pic">
           <span class="name">{{item.name}}</span>
         </li>
@@ -37,6 +37,7 @@
 <script>
 import { onMounted, ref,watch,computed,nextTick, onUnmounted } from 'vue'
 export default {
+  emits: ['select'],
   props: {
     data: {
       type: Array,
@@ -45,7 +46,7 @@ export default {
       }
     }
   },
-  setup(props) {
+  setup(props,{ emit } ) {
     const TITLE_HEIGHT = 30      // 标题高度
     const ANCHOR_HEIGHT = 18    // 字母高度
     const groupRef = ref(null)
@@ -141,6 +142,11 @@ export default {
       element.scrollTo(0, targetEl.offsetTop);
     }
 
+    // 跳转歌手详情
+    const onItemClick = (item) => {
+      emit('select',item)
+    }
+
     return {
       groupRef,
       fixedTitle,
@@ -148,7 +154,8 @@ export default {
       currentIndex,
       shortcutList,
       handleClickShortcut,
-      onShortcutTouchMove
+      onShortcutTouchMove,
+      onItemClick
     }
   }
 }

@@ -32,6 +32,7 @@
 <script>
 import { getRecommend } from '@/api/recommend'
 export default {
+  name: 'recommend',
   data() {
     return {
       sliders: [],

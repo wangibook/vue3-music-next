@@ -6,3 +6,13 @@ export function getSingerList() {
     method: 'get'
   })
 }
+
+export function getSingerDetail(singer) {
+  return request({
+    url: '/api/getSingerDetail',
+    method: 'get',
+    params: {
+      mid: singer.mid
+    }
+  })
+}
