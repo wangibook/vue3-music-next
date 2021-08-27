@@ -24,13 +24,19 @@ const routes = [
         path: ':id',
         name: 'singerDetail',
         component: () => import(/* webpackChunkName: "singerDetail" */ '../views/singer/singerDetail')
-      },
+      }
     ]
   },
   {
     path: '/topList',
     name: 'topList',
-    component: () => import(/* webpackChunkName: "topList" */ '../views/topList')
+    component: () => import(/* webpackChunkName: "topList" */ '../views/topList'),
+    children: [
+      {
+        path: ':id',
+        component: () => import(/* webpackChunkName: "topDetail" */ '../views/topList/topDetail')
+      }
+    ]
   },
   {
     path: '/search',
@@ -40,7 +46,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(process.env.BASE_URL),
+  history: createWebHashHistory(),
   routes
 })
 

@@ -7,12 +7,12 @@ export function getSingerList() {
   })
 }
 
-export function getSingerDetail(singer) {
+export function getSingerDetail(mid) {
   return request({
     url: '/api/getSingerDetail',
     method: 'get',
     params: {
-      mid: singer.mid
+      mid
     }
   })
 }

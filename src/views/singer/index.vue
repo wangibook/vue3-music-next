@@ -31,7 +31,6 @@ export default {
     },
     selectSinger(singer) {
       this.selectedSinger = singer
-      console.log(this.$route)
       this.$router.push({
         path: `/singer/${singer.mid}`
       })

@@ -4,7 +4,8 @@
       <li
         class="item"
         v-for="item in topList"
-        :key="item.id">
+        :key="item.id"
+        @click="selectItem(item)">
         <img class="img" v-lazy="item.pic" alt="">
         <ul class="song-list">
           <li
@@ -17,6 +18,7 @@
         </ul>
       </li>
     </ul>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -37,6 +39,11 @@ export default {
       getTopList().then(res => {
         let data = res.data.result
         this.topList = data.topList
+      })
+    },
+    selectItem(top) {
+      this.$router.push({
+        path: `/topList/${top.id}`
       })
     }
   }
