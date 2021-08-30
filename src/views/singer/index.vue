@@ -1,7 +1,12 @@
 <template>
   <div class="singer" v-loading="!singers.length">
     <index-list :data="singers" @select="selectSinger"></index-list>
-    <router-view :key="$route.path" :singer="selectedSinger"></router-view>
+
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :singer="selectedSinger"/>
+      </transition>
+    </router-view>
   </div>
 </template>
 
@@ -31,6 +36,7 @@ export default {
     },
     selectSinger(singer) {
       this.selectedSinger = singer
+      sessionStorage.setItem('singerKey',JSON.stringify(singer))
       this.$router.push({
         path: `/singer/${singer.mid}`
       })

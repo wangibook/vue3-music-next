@@ -1,8 +1,8 @@
 <template>
   <div class="singer-detail">
     <music-list
-      :pic="pic"
-      :title="title"
+      :pic="computedSinger.pic"
+      :title="computedSinger.name"
       :songs="songs"
       :loading="loading">
     </music-list>
@@ -31,11 +31,18 @@ export default {
     }
   },
   computed: {
-    pic() {
-      return this.singer && this.singer.pic
-    },
-    title() {
-      return this.singer && this.singer.name
+    computedSinger() {
+      let result = null
+      const singer = this.singer
+      if(singer) {
+        result = singer
+      } else {
+        let singerKey = JSON.parse(sessionStorage.getItem('singerKey'))
+        if(singerKey && singerKey.mid == this.mid) {
+          result = singerKey
+        }
+      }
+      return result
     }
   },
   mounted() {
@@ -48,7 +55,10 @@ export default {
     _getSingerDetail() {
       getSingerDetail(this.mid).then(res => {
         let data = res.data.result
-        this._processSongs(data.songs)
+        this.loading = false
+        if(data.songs.length) {
+          this._processSongs(data.songs)
+        }
       })
     },
     _processSongs(dataArr) {

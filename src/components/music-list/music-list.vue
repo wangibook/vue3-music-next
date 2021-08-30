@@ -4,13 +4,15 @@
       <i class="icon-back"></i>
     </div>
     <h1 class="title">{{title}}</h1>
-    <div class="bg-image" ref="bgImgRef" :style="bgImageStyle"></div>
+    <div class="bg-image" ref="bgImgRef" :style="bgImageStyle">
+      <div class="filter" :style="filterStyle"></div>
+    </div>
     <div 
       class="list"
       :style="listStyle"
       ref="listRef"
       v-loading="loading">
-      <ul class="song-list">
+      <ul class="song-list" v-if="songs.length">
         <li 
           class="item"
           v-for="(item, index) in songs"
@@ -21,6 +23,10 @@
           </div>
         </li>
       </ul>
+      <div class="no-result" v-else>
+        <img src="../../assets/images/no-result@2x.png" alt="">
+        <p class="word">抱歉，没有找到可播放的歌曲</p>
+      </div>
     </div>
   </div>
 </template>
@@ -52,22 +58,34 @@ export default {
   computed: {
     bgImageStyle() {
       let paddingTop = '70%'
-      let height = 0
-
-      if(this.scrollTop > this.maxTranslateY) {
-        paddingTop = 0
-        height = `${RESERVED_HEIGHT}px`
-      }
-      
+        
       return {
         paddingTop,
-        height,
         backgroundImage: `url(${this.pic})`
       }
     },
     listStyle() {
+      let imgHeght = this.imgHeght
+      let scrollTop = this.scrollTop
+      let height = imgHeght - scrollTop
+
+      if(height < 40) {
+        height = `${RESERVED_HEIGHT}px`
+      }
       return {
-        top: `${this.imgHeght}px`
+        top: `${height}px`
+      }
+    },
+    filterStyle() {
+      let blur = 0
+      let imgHeght = this.imgHeght
+      let scrollTop = this.scrollTop
+      if(scrollTop > 0) {
+        // blur = scrollTop / imgHeght * 20
+        blur = Math.min(this.maxTranslateY / imgHeght, scrollTop / imgHeght) * 20
+      }
+      return {
+        backdropFilter: `blur(${blur}px)`
       }
     }
   },
@@ -81,8 +99,10 @@ export default {
   },
   methods: {
     handleScroll() {
-      this.scrollTop = this.$refs.listRef.scrollTop
-      this.maxTranslateY = this.imgHeght - RESERVED_HEIGHT
+      if(this.$refs.listRef) {
+        this.scrollTop = this.$refs.listRef.scrollTop
+        this.maxTranslateY = this.imgHeght - RESERVED_HEIGHT
+      }
     }
   }
 }
@@ -165,6 +185,7 @@ export default {
     bottom: 0;
     width: 100%;
     padding: 20px 30px;
+    box-sizing: border-box;
     background: #222;
     overflow: scroll;
     .song-list{
@@ -189,7 +210,19 @@ export default {
           }
         }
       }
-    } 
+    }
+    .no-result{
+      text-align: center;
+      padding-top: 50px;
+      img{
+        width: 120px;
+        height: 120px;
+      }
+      .word{
+        color: #666;
+        padding-top: 10px;
+      }
+    }
   }
 }
 </style>
