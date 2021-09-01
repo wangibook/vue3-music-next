@@ -5,6 +5,12 @@
     </div>
     <h1 class="title">{{title}}</h1>
     <div class="bg-image" ref="bgImgRef" :style="bgImageStyle">
+      <div class="play-btn-wrapper" :style="playBtnStyle">
+        <div class="play-btn">
+          <i class="icon-play"></i>
+          <span class="text">随机播放全部</span>
+        </div>
+      </div>
       <div class="filter" :style="filterStyle"></div>
     </div>
     <div 
@@ -12,17 +18,11 @@
       :style="listStyle"
       ref="listRef"
       v-loading="loading">
-      <ul class="song-list" v-if="songs.length">
-        <li 
-          class="item"
-          v-for="(item, index) in songs"
-          :key="item.id">
-          <div class="content">
-            <h2 class="name">{{item.name}}</h2>
-            <p class="desc">{{item.singer}}-{{item.album}}</p>
-          </div>
-        </li>
-      </ul>
+      <song-list 
+        v-if="songs.length" 
+        :songs="songs"
+        @select="selectItem">
+      </song-list>
       <div class="no-result" v-else>
         <img src="../../assets/images/no-result@2x.png" alt="">
         <p class="word">抱歉，没有找到可播放的歌曲</p>
@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import songList from '@/components/song-list/song-list'
+import { mapState,mapActions } from 'vuex'
 const RESERVED_HEIGHT = 40
 export default {
   props: {
@@ -48,6 +50,9 @@ export default {
       type: Boolean
     }
   },
+  components: {
+    songList
+  },
   data() {
     return {
       imgHeght: 0,
@@ -62,6 +67,15 @@ export default {
       return {
         paddingTop,
         backgroundImage: `url(${this.pic})`
+      }
+    },
+    playBtnStyle() {
+      let display = ''
+      if(this.scrollTop > 0) {
+        display = 'none'
+      }
+      return {
+        display
       }
     },
     listStyle() {
@@ -98,11 +112,20 @@ export default {
     window.removeEventListener('scroll',this.handleScroll,true)
   },
   methods: {
+    ...mapActions([
+      'selectPlay',
+    ]),
     handleScroll() {
       if(this.$refs.listRef) {
         this.scrollTop = this.$refs.listRef.scrollTop
         this.maxTranslateY = this.imgHeght - RESERVED_HEIGHT
       }
+    },
+    selectItem({song,index}) {
+      this.selectPlay({
+        list: this.songs,
+        index
+      })
     }
   }
 }
@@ -188,29 +211,7 @@ export default {
     box-sizing: border-box;
     background: #222;
     overflow: scroll;
-    .song-list{
-      .item{
-        display: flex;
-        align-items: center;
-        box-sizing: border-box;
-        height: 64px;
-        font-size: $font-size-medium;
-        .content {
-          flex: 1;
-          line-height: 20px;
-          overflow: hidden;
-          .name {
-            @include no-wrap();
-            color: $color-text
-          }
-          .desc {
-            @include no-wrap();
-            margin-top: 4px;
-            color: $color-text-d;
-          }
-        }
-      }
-    }
+    
     .no-result{
       text-align: center;
       padding-top: 50px;
