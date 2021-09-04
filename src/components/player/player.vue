@@ -12,6 +12,14 @@
         <h2 class="subtitle">{{currentSong.singer}}</h2>
       </div>
       <div class="bottom">
+        <div class="progress-wrapper">
+          <span class="time time-l">{{formatTime(currentTime)}}</span>
+          <div class="progress-bar-wrapper">
+            <progressBar
+              :progress="progress" />
+          </div>
+          <span class="time time-r">{{formatTime(currentSong.duration)}}</span>
+        </div>
         <div class="operators">
           <div class="icon i-left">
             <i @click="changeMode" :class="modeIcon"></i>
@@ -35,7 +43,8 @@
       ref="audioRef" 
       @pause="pause"
       @canplay="ready"
-      @error="error">
+      @error="error"
+      @timeupdate="updateTime">
     </audio>
   </div>
 </template>
@@ -45,12 +54,18 @@ import { ref,computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
+import progressBar from './progress-bar'
+import { formatTime } from '@/assets/js/util'
 
 export default {
+  components: {
+    progressBar
+  },
   setup() {
     // data
     const audioRef = ref(null)
     const songReady = ref(false)
+    const currentTime = ref(1550)
     // vuex
     const store = useStore()
     const fullScreen = computed(() => store.state.fullScreen)
@@ -66,6 +81,9 @@ export default {
     // computed
     const playIcon = computed(() => {
       return playing.value ? 'icon-pause' : 'icon-play'
+    })
+    const progress = computed(() => {
+      return currentTime.value / currentSong.value.duration
     })
 
     // 歌曲还没缓存好时，给个disable
@@ -151,12 +169,20 @@ export default {
       songReady.value = true
     }
 
+    // audio的播放事件
+    const updateTime = (e) => {
+      currentTime.value = e.target.currentTime
+    }
+
     return {
       audioRef,
       fullScreen,
       currentSong,
       playIcon,
       disableCls,
+      currentTime,
+      progress,
+      // 方法
       goBack,
       togglePlay,
       prev,
@@ -164,6 +190,8 @@ export default {
       pause,
       ready,
       error,
+      updateTime,
+      formatTime,
       // useMode
       modeIcon,
       changeMode,
@@ -235,6 +263,30 @@ export default {
       position: absolute;
       bottom: 50px;
       width: 100%;
+      // 进度条
+      .progress-wrapper{
+        display: flex;
+        align-items: center;
+        width: 80%;
+        margin: 0px auto;
+        padding: 10px 0;
+        .time {
+          color: $color-text;
+          font-size: $font-size-small;
+          flex: 0 0 40px;
+          line-height: 30px;
+          width: 40px;
+          &.time-l {
+            text-align: left;
+          }
+          &.time-r {
+            text-align: right;
+          }
+        }
+        .progress-bar-wrapper {
+          flex: 1;
+        }
+      }
       .operators {
         display: flex;
         align-items: center;
