@@ -14,46 +14,71 @@
       <div class="bottom">
         <div class="operators">
           <div class="icon i-left">
-            <i class="icon-sequence"></i>
+            <i @click="changeMode" :class="modeIcon"></i>
           </div>
-          <div class="icon i-left">
+          <div class="icon i-left" :class="disableCls">
             <i @click="prev" class="icon-prev"></i>
           </div>
-          <div class="icon i-center">
+          <div class="icon i-center" :class="disableCls">
             <i @click="togglePlay" :class="playIcon"></i>
           </div>
-          <div class="icon i-right">
+          <div class="icon i-right" :class="disableCls">
             <i @click="next" class="icon-next"></i>
           </div>
           <div class="icon i-right">
-            <i class="icon-not-favorite"></i>
+            <i @click="toggleFavorite(currentSong)" :class="getFavoriteIcon(currentSong)"></i>
           </div>
         </div>
       </div>
     </div>
-    <audio ref="audioRef" @pause="pause"></audio>
+    <audio 
+      ref="audioRef" 
+      @pause="pause"
+      @canplay="ready"
+      @error="error">
+    </audio>
   </div>
 </template>
 
 <script>
 import { ref,computed, watch } from 'vue'
 import { useStore } from 'vuex'
+import useMode from './use-mode'
+import useFavorite from './use-favorite'
+
 export default {
   setup() {
     // data
     const audioRef = ref(null)
+    const songReady = ref(false)
     // vuex
     const store = useStore()
     const fullScreen = computed(() => store.state.fullScreen)
     const currentSong = computed(() => store.getters.currentSong)
-    const playing = computed(() => store.state.playing)
+    const playing = computed(() => store.state.playing)   // 播放状态
+    const playlist = computed(() => store.state.playlist)  // 歌曲列表
+    const currentIndex = computed(() => store.state.currentIndex)
+
+    // hooks
+    const { modeIcon, changeMode } = useMode()
+    const { getFavoriteIcon,toggleFavorite  } = useFavorite()
     
+    // computed
     const playIcon = computed(() => {
       return playing.value ? 'icon-pause' : 'icon-play'
     })
 
+    // 歌曲还没缓存好时，给个disable
+    const disableCls = computed(() => {
+      return songReady.value ? '' : 'disable'
+    })
+
+
+    // watch 更侧重于写逻辑相关
     watch(currentSong, (newSong) =>  {
       if (!newSong.id || !newSong.url) return
+      // 快速点击，歌曲还没准备好时，状态为false
+      songReady.value = false
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
@@ -70,21 +95,81 @@ export default {
     }
 
     const togglePlay = () => {
+      if(!songReady.value) return
       store.commit('setPlayingState', !playing.value)
+    }
+
+    // 上一首歌曲
+    const prev = () => {
+      const list = playlist.value
+      if(!songReady.value || !list.length) return
+      
+      if(list.length === 1) {
+        loop()
+      } else {
+        let index = currentIndex.value - 1
+        if (index === -1) {
+          index = list.length - 1
+        }
+        store.commit('setCurrentIndex', index)
+      }
+    }
+
+    const next = () => {
+      const list = playlist.value
+      if(!songReady.value || !list.length) return
+
+      if(list.length === 1) {
+        loop()
+      } else {
+        let index = currentIndex.value + 1
+        if (index === list.length) {
+          index = 0
+        }
+        store.commit('setCurrentIndex', index)
+      }
+    }
+
+    const loop = () => {
+      const audioEl = audioRef.value
+      audioEl.currentTime = 0
+      audioEl.play()
+      store.commit('setPlayingState', true)
     }
 
     // 特殊原因歌曲暂停，把状态置为false
     const pause = () => {
       store.commit('setPlayingState', false)
     }
+
+    const ready = () => {
+      if(songReady.value) return
+      songReady.value = true
+    }
+
+    const error = () => {
+      songReady.value = true
+    }
+
     return {
       audioRef,
       fullScreen,
       currentSong,
       playIcon,
+      disableCls,
       goBack,
       togglePlay,
-      pause
+      prev,
+      next,
+      pause,
+      ready,
+      error,
+      // useMode
+      modeIcon,
+      changeMode,
+      // useFavorite
+      getFavoriteIcon,
+      toggleFavorite
     }
   }
 }

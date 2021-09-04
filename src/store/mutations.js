@@ -6,9 +6,9 @@ const mutations = {
     state.playlist = list
   },
   // 设置顺序播放
-  // setSequenceList(state,list) {
-  //   state.sequenceList = list
-  // },
+  setSequenceList(state,list) {
+    state.sequenceList = list
+  },
   // 当前播放
   setCurrentIndex(state, index) {
     state.currentIndex = index
@@ -19,6 +19,10 @@ const mutations = {
   },
   setPlayingState(state, playing) {
     state.playing = playing
+  },
+  // 设置喜欢和取消喜欢歌曲
+  setFavoriteList(state, list) {
+    state.favoriteList = list
   },
 }
 

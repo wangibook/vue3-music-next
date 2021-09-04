@@ -6,7 +6,7 @@
     <h1 class="title">{{title}}</h1>
     <div class="bg-image" ref="bgImgRef" :style="bgImageStyle">
       <div class="play-btn-wrapper" :style="playBtnStyle">
-        <div class="play-btn">
+        <div class="play-btn" @click="random">
           <i class="icon-play"></i>
           <span class="text">随机播放全部</span>
         </div>
@@ -114,6 +114,7 @@ export default {
   methods: {
     ...mapActions([
       'selectPlay',
+      'randomPlay'
     ]),
     handleScroll() {
       if(this.$refs.listRef) {
@@ -126,6 +127,9 @@ export default {
         list: this.songs,
         index
       })
+    },
+    random() {
+      this.randomPlay(this.songs)
     }
   }
 }
