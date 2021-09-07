@@ -16,7 +16,9 @@
           <span class="time time-l">{{formatTime(currentTime)}}</span>
           <div class="progress-bar-wrapper">
             <progressBar
-              :progress="progress" />
+              :progress="progress"
+              @progress-changing="onProgressChanging"
+              @progress-changed="onProgressChanged" />
           </div>
           <span class="time time-r">{{formatTime(currentSong.duration)}}</span>
         </div>
@@ -44,7 +46,8 @@
       @pause="pause"
       @canplay="ready"
       @error="error"
-      @timeupdate="updateTime">
+      @timeupdate="updateTime"
+      @ended="end">
     </audio>
   </div>
 </template>
@@ -56,6 +59,7 @@ import useMode from './use-mode'
 import useFavorite from './use-favorite'
 import progressBar from './progress-bar'
 import { formatTime } from '@/assets/js/util'
+import { PLAY_MODE } from '@/store/mutations-type'
 
 export default {
   components: {
@@ -66,6 +70,7 @@ export default {
     const audioRef = ref(null)
     const songReady = ref(false)
     const currentTime = ref(1550)
+    let progressChanging = false
     // vuex
     const store = useStore()
     const fullScreen = computed(() => store.state.fullScreen)
@@ -73,6 +78,7 @@ export default {
     const playing = computed(() => store.state.playing)   // 播放状态
     const playlist = computed(() => store.state.playlist)  // 歌曲列表
     const currentIndex = computed(() => store.state.currentIndex)
+    const playMode = computed(() => store.state.playMode)
 
     // hooks
     const { modeIcon, changeMode } = useMode()
@@ -95,11 +101,13 @@ export default {
     // watch 更侧重于写逻辑相关
     watch(currentSong, (newSong) =>  {
       if (!newSong.id || !newSong.url) return
+      currentTime.value = 0
       // 快速点击，歌曲还没准备好时，状态为false
       songReady.value = false
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
+      store.commit('setPlayingState', true)
     })
 
     // 监听播放状态
@@ -171,7 +179,36 @@ export default {
 
     // audio的播放事件
     const updateTime = (e) => {
-      currentTime.value = e.target.currentTime
+      // 如果是播放状态，拖动进度条，还是会跳回来，所以加个progressChanging状态
+      if(!progressChanging) {
+        currentTime.value = e.target.currentTime
+      }
+    }
+
+    const onProgressChanging = (progress) => {
+      progressChanging = true
+      currentTime.value = currentSong.value.duration * progress
+    }
+
+    const onProgressChanged = (progress) => {
+      // 拖动完成后状态置为false
+      progressChanging = false
+      const audioEl = audioRef.value
+      // 手松开的时候才改audio播放时间
+      audioEl.currentTime = currentTime.value = currentSong.value.duration * progress
+      // 如果是暂停，拖动完后播放
+      if (!playing.value) {
+        store.commit('setPlayingState', true)
+      }
+    }
+
+    const end = () => {
+      currentTime.value = 0
+      if(playMode.value === PLAY_MODE.loop) {
+        loop()
+      } else {
+        next()
+      }
     }
 
     return {
@@ -192,6 +229,9 @@ export default {
       error,
       updateTime,
       formatTime,
+      onProgressChanging,
+      onProgressChanged,
+      end,
       // useMode
       modeIcon,
       changeMode,

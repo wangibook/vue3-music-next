@@ -1,10 +1,13 @@
 <template>
-  <div class="progress-bar">
+  <div class="progress-bar" @click="onClick">
     <div class="bar-inner">
-      <div class="progress" :style="progressStyle"></div>
+      <div class="progress" ref="progress" :style="progressStyle"></div>
       <div 
         class="progress-btn-wrapper"
-        :style="btnStyle">
+        :style="btnStyle"
+        @touchstart.prevent="onTouchStart"
+        @touchmove.prevent="onTouchMove"
+        @touchend.prevent="onTouchEnd">
         <div class="progress-btn"></div>
       </div>
     </div>
@@ -41,13 +44,46 @@ export default {
     }
   },
   mounted() {
-
+    // 不需要观测变化，但是上下文中又希望用到，就可以这样定义
+    this.touch = {}
   },
   methods: {
     setOffset(progress) {
       // 进度条宽度
       const barWidth = this.$el.clientWidth - progressBtnWidth
+      console.log(barWidth)
       this.offset = barWidth * progress
+    },
+    onTouchStart(e) {
+      // 开始的横坐标值
+      this.touch.x1 = e.touches[0].pageX
+      // 进度条开始的宽度
+      this.touch.beginWidth = this.$refs.progress.clientWidth
+    },
+    onTouchMove(e) {
+      // 偏移的横向位移
+      const delta = e.touches[0].pageX - this.touch.x1
+      // 拖动后的宽度
+      const tempWidth = this.touch.beginWidth + delta
+      const barWidth = this.$el.clientWidth - progressBtnWidth
+      // progress在0~1之间
+      const progress = Math.min(1, Math.max(tempWidth / barWidth, 0))
+      this.offset = barWidth * progress
+      this.$emit('progress-changing', progress)
+    },
+    onTouchEnd() {
+      const barWidth = this.$el.clientWidth - progressBtnWidth
+      const progress = this.$refs.progress.clientWidth / barWidth
+      this.$emit('progress-changed', progress)
+    },
+    onClick(e) {
+      const rect = this.$el.getBoundingClientRect()
+      // rect.left ---- > 元素距视窗左侧的距离
+      // 拖动后的宽度 = 点击的位置-元素距视窗左侧的距离
+      const tempWidth = e.pageX - rect.left
+      const barWidth = this.$el.clientWidth - progressBtnWidth
+      const progress = tempWidth / barWidth
+      this.$emit('progress-changed', progress)
     }
   }
 }
