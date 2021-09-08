@@ -11,6 +11,29 @@
         <h1 class="title">{{currentSong.name}}</h1>
         <h2 class="subtitle">{{currentSong.singer}}</h2>
       </div>
+      <div class="middle">
+        <div class="middle-l" v-if="false">
+          <div class="cd-wrapper">
+            <div class="cd" ref="cdRef">
+              <img class="image" ref="cdImageRef" :class="cdCls" :src="currentSong.pic" alt="">
+            </div>
+          </div>
+          <div class="playing-lyric-wrapper">
+            <div class="playing-lyric">歌词歌词</div>
+          </div>
+        </div>
+        <div class="middle-r">
+          <div class="lyric-wrapper" v-if="currentLyric">
+            <p 
+              class="text"
+              :class="{'current': currentLineNum ===index}"
+              v-for="(item,index) in currentLyric.lines" 
+              :key="index">
+              {{item.txt}}
+            </p>
+          </div>
+        </div>
+      </div>
       <div class="bottom">
         <div class="progress-wrapper">
           <span class="time time-l">{{formatTime(currentTime)}}</span>
@@ -57,6 +80,8 @@ import { ref,computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
+import useCd from './use-cd'
+import useLyric from './use-lyric'
 import progressBar from './progress-bar'
 import { formatTime } from '@/assets/js/util'
 import { PLAY_MODE } from '@/store/mutations-type'
@@ -83,6 +108,8 @@ export default {
     // hooks
     const { modeIcon, changeMode } = useMode()
     const { getFavoriteIcon,toggleFavorite  } = useFavorite()
+    const { cdCls,cdRef, cdImageRef } = useCd()
+    const { currentLyric,currentLineNum,playLyric,stopLyric } = useLyric({songReady,currentTime})
     
     // computed
     const playIcon = computed(() => {
@@ -113,7 +140,13 @@ export default {
     // 监听播放状态
     watch(playing, (newPlaying) => {
       const audioEl = audioRef.value
-      newPlaying ? audioEl.play() : audioEl.pause()
+      if(newPlaying) {
+        audioEl.play()
+        playLyric()
+      } else {
+        audioEl.pause()
+        stopLyric()
+      }
     })
 
     const goBack = () => {
@@ -237,7 +270,14 @@ export default {
       changeMode,
       // useFavorite
       getFavoriteIcon,
-      toggleFavorite
+      toggleFavorite,
+      // useCd
+      cdCls,
+      cdRef,
+      cdImageRef,
+      // useLyric
+      currentLyric,
+      currentLineNum
     }
   }
 }
@@ -297,6 +337,82 @@ export default {
         text-align: center;
         font-size: $font-size-medium;
         color: $color-text;
+      }
+    }
+    .middle{
+      position: fixed;
+      width: 100%;
+      top: 80px;
+      bottom: 170px;
+      white-space: nowrap;
+      font-size: 0;
+      .middle-l {
+        display: inline-block;
+        vertical-align: top;
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-top: 80%;
+        .cd-wrapper {
+          position: absolute;
+          left: 10%;
+          top: 0;
+          width: 80%;
+          box-sizing: border-box;
+          height: 100%;
+          .cd {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            img {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              height: 100%;
+              box-sizing: border-box;
+              border-radius: 50%;
+              border: 10px solid rgba(255, 255, 255, 0.1);
+            }
+            .playing {
+              animation: rotate 20s linear infinite
+            }
+          }
+        }
+        .playing-lyric-wrapper {
+          width: 80%;
+          margin: 30px auto 0 auto;
+          overflow: hidden;
+          text-align: center;
+          .playing-lyric {
+            height: 20px;
+            line-height: 20px;
+            font-size: $font-size-medium;
+            color: $color-text-l;
+          }
+        }
+      }
+      .middle-r {
+        display: inline-block;
+        vertical-align: top;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        .lyric-wrapper{
+          width: 80%;
+          height: 100%;
+          margin: 0 auto;
+          overflow: scroll;
+          text-align: center;
+          .text {
+            line-height: 32px;
+            color: $color-text-l;
+            font-size: $font-size-medium;
+            &.current {
+              color: $color-text;
+            }
+          }
+        }
       }
     }
     .bottom{
@@ -359,5 +475,9 @@ export default {
       }
     }
   }
+}
+
+div::-webkit-scrollbar {
+  width: 0;
 }
 </style>

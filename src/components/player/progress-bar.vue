@@ -51,7 +51,6 @@ export default {
     setOffset(progress) {
       // 进度条宽度
       const barWidth = this.$el.clientWidth - progressBtnWidth
-      console.log(barWidth)
       this.offset = barWidth * progress
     },
     onTouchStart(e) {
