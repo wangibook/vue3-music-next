@@ -12,27 +12,34 @@
         <h2 class="subtitle">{{currentSong.singer}}</h2>
       </div>
       <div class="middle">
-        <div class="middle-l" v-if="false">
+        <div class="middle-l">
           <div class="cd-wrapper">
             <div class="cd" ref="cdRef">
               <img class="image" ref="cdImageRef" :class="cdCls" :src="currentSong.pic" alt="">
             </div>
           </div>
           <div class="playing-lyric-wrapper">
-            <div class="playing-lyric">歌词歌词</div>
+            <div class="playing-lyric">{{playingLyric}}</div>
           </div>
         </div>
-        <div class="middle-r">
-          <div class="lyric-wrapper" v-if="currentLyric">
-            <p 
-              class="text"
-              :class="{'current': currentLineNum ===index}"
-              v-for="(item,index) in currentLyric.lines" 
-              :key="index">
-              {{item.txt}}
-            </p>
+        <scroll class="middle-r" ref="lyricScrollRef">
+          <div class="lyric-wrapper">
+            <div 
+              ref="lyricListRef" 
+              v-if="currentLyric">
+              <p 
+                class="text"
+                :class="{'current': currentLineNum ===index}"
+                v-for="(item,index) in currentLyric.lines" 
+                :key="index">
+                {{item.txt}}
+              </p>
+            </div>
+            <div class="pure-music" v-show="pureMusicLyric">
+              <p>{{pureMusicLyric}}</p>
+            </div>
           </div>
-        </div>
+        </scroll>
       </div>
       <div class="bottom">
         <div class="progress-wrapper">
@@ -83,12 +90,14 @@ import useFavorite from './use-favorite'
 import useCd from './use-cd'
 import useLyric from './use-lyric'
 import progressBar from './progress-bar'
+import scroll from '@/components/scroll/scroll'
 import { formatTime } from '@/assets/js/util'
 import { PLAY_MODE } from '@/store/mutations-type'
 
 export default {
   components: {
-    progressBar
+    progressBar,
+    scroll
   },
   setup() {
     // data
@@ -109,7 +118,7 @@ export default {
     const { modeIcon, changeMode } = useMode()
     const { getFavoriteIcon,toggleFavorite  } = useFavorite()
     const { cdCls,cdRef, cdImageRef } = useCd()
-    const { currentLyric,currentLineNum,playLyric,stopLyric } = useLyric({songReady,currentTime})
+    const { currentLyric,currentLineNum,lyricScrollRef,lyricListRef,pureMusicLyric,playingLyric,playLyric,stopLyric } = useLyric({songReady,currentTime})
     
     // computed
     const playIcon = computed(() => {
@@ -221,6 +230,9 @@ export default {
     const onProgressChanging = (progress) => {
       progressChanging = true
       currentTime.value = currentSong.value.duration * progress
+      // 拖动过程中，滚动到当前歌词位置，再停止（不停止，就会顺着当前继续播放下面歌词）
+      playLyric()
+      stopLyric()
     }
 
     const onProgressChanged = (progress) => {
@@ -233,6 +245,8 @@ export default {
       if (!playing.value) {
         store.commit('setPlayingState', true)
       }
+      // 拖动完成后，再播放
+      playLyric()
     }
 
     const end = () => {
@@ -277,7 +291,11 @@ export default {
       cdImageRef,
       // useLyric
       currentLyric,
-      currentLineNum
+      currentLineNum,
+      lyricScrollRef,
+      lyricListRef,
+      pureMusicLyric,
+      playingLyric
     }
   }
 }
@@ -400,9 +418,8 @@ export default {
         overflow: hidden;
         .lyric-wrapper{
           width: 80%;
-          height: 100%;
           margin: 0 auto;
-          overflow: scroll;
+          overflow: hidden;
           text-align: center;
           .text {
             line-height: 32px;
@@ -477,7 +494,4 @@ export default {
   }
 }
 
-div::-webkit-scrollbar {
-  width: 0;
-}
 </style>

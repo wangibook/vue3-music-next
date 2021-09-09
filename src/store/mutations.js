@@ -24,6 +24,14 @@ const mutations = {
   setFavoriteList(state, list) {
     state.favoriteList = list
   },
+  // addSongLyric(state,{newSong,lyric}) {
+  //   state.sequenceList.map((item) => {
+  //     if (item.mid === newSong.mid) {
+  //       item.lyric = lyric
+  //     }
+  //     return item
+  //   })
+  // }
 }
 
 export default mutations
