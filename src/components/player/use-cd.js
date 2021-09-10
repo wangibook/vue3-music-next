@@ -16,7 +16,7 @@ export default function useCd() {
   watch(playing,(newPlaying) => {
     // 如果是暂停，同步旋转角度
     if(!newPlaying) {
-      // syncTransform(cdRef.value, cdImageRef.value)
+      syncTransform(cdRef.value, cdImageRef.value)
     }
   })
 

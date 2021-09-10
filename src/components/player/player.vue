@@ -11,8 +11,12 @@
         <h1 class="title">{{currentSong.name}}</h1>
         <h2 class="subtitle">{{currentSong.singer}}</h2>
       </div>
-      <div class="middle">
-        <div class="middle-l">
+      <div 
+        class="middle"
+        @touchstart.prevent="onMiddleTouchStart"
+        @touchmove.prevent="onMiddleTouchMove"
+        @touchend.prevent="onMiddleTouchEnd">
+        <div class="middle-l" :style="middleLStyle">
           <div class="cd-wrapper">
             <div class="cd" ref="cdRef">
               <img class="image" ref="cdImageRef" :class="cdCls" :src="currentSong.pic" alt="">
@@ -22,7 +26,7 @@
             <div class="playing-lyric">{{playingLyric}}</div>
           </div>
         </div>
-        <scroll class="middle-r" ref="lyricScrollRef">
+        <scroll class="middle-r" ref="lyricScrollRef" :style="middleRStyle">
           <div class="lyric-wrapper">
             <div 
               ref="lyricListRef" 
@@ -42,6 +46,10 @@
         </scroll>
       </div>
       <div class="bottom">
+        <div class="dot-wrapper">
+          <span class="dot" :class="{'active':currentShow==='cd'}"></span>
+          <span class="dot" :class="{'active':currentShow==='lyric'}"></span>
+        </div>
         <div class="progress-wrapper">
           <span class="time time-l">{{formatTime(currentTime)}}</span>
           <div class="progress-bar-wrapper">
@@ -89,6 +97,7 @@ import useMode from './use-mode'
 import useFavorite from './use-favorite'
 import useCd from './use-cd'
 import useLyric from './use-lyric'
+import useMiddleInteractive from './use-middle-interactive'
 import progressBar from './progress-bar'
 import scroll from '@/components/scroll/scroll'
 import { formatTime } from '@/assets/js/util'
@@ -119,6 +128,7 @@ export default {
     const { getFavoriteIcon,toggleFavorite  } = useFavorite()
     const { cdCls,cdRef, cdImageRef } = useCd()
     const { currentLyric,currentLineNum,lyricScrollRef,lyricListRef,pureMusicLyric,playingLyric,playLyric,stopLyric } = useLyric({songReady,currentTime})
+    const { currentShow,middleLStyle,middleRStyle,onMiddleTouchStart,onMiddleTouchMove,onMiddleTouchEnd } = useMiddleInteractive()
     
     // computed
     const playIcon = computed(() => {
@@ -295,7 +305,14 @@ export default {
       lyricScrollRef,
       lyricListRef,
       pureMusicLyric,
-      playingLyric
+      playingLyric,
+      // useMiddleInteractive
+      currentShow,
+      middleLStyle,
+      middleRStyle,
+      onMiddleTouchStart,
+      onMiddleTouchMove,
+      onMiddleTouchEnd
     }
   }
 }
@@ -436,6 +453,24 @@ export default {
       position: absolute;
       bottom: 50px;
       width: 100%;
+      .dot-wrapper{
+        text-align: center;
+        font-size: 0;
+        .dot {
+          display: inline-block;
+          vertical-align: middle;
+          margin: 0 4px;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: $color-text-l;
+          &.active {
+            width: 20px;
+            border-radius: 5px;
+            background: $color-text-ll;
+          }
+        }
+      }
       // 进度条
       .progress-wrapper{
         display: flex;
