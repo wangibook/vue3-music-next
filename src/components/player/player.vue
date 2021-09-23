@@ -1,5 +1,5 @@
 <template>
-  <div class="player">
+  <div class="player" v-show="playlist.length">
     <div class="normal-player" v-show="fullScreen">
       <div class="background">
         <img :src="currentSong.pic" alt="">
@@ -79,6 +79,13 @@
         </div>
       </div>
     </div>
+
+    <!-- 底部的迷你播放器 -->
+    <mini-player 
+      :progress="progress" 
+      :togglePlay="togglePlay">
+    </mini-player>
+
     <audio 
       ref="audioRef" 
       @pause="pause"
@@ -99,6 +106,7 @@ import useCd from './use-cd'
 import useLyric from './use-lyric'
 import useMiddleInteractive from './use-middle-interactive'
 import progressBar from './progress-bar'
+import miniPlayer from './mini-player'
 import scroll from '@/components/scroll/scroll'
 import { formatTime } from '@/assets/js/util'
 import { PLAY_MODE } from '@/store/mutations-type'
@@ -106,7 +114,8 @@ import { PLAY_MODE } from '@/store/mutations-type'
 export default {
   components: {
     progressBar,
-    scroll
+    scroll,
+    miniPlayer
   },
   setup() {
     // data
@@ -272,6 +281,7 @@ export default {
       audioRef,
       fullScreen,
       currentSong,
+      playlist,
       playIcon,
       disableCls,
       currentTime,
