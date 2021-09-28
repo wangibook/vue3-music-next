@@ -6,7 +6,7 @@
         v-show="visible && playlist.length"
         @click="hide"
       >
-        <div class="list-wrapper">
+        <div class="list-wrapper" @click.stop>
           <div class="list-header">
             <h1 class="title">
               <i
@@ -32,13 +32,20 @@
               name="list"
               tag="ul"
             >
-              <li class="item" v-for="song in sequenceList" :key="song.id">
+              <li 
+                class="item" 
+                v-for="song in sequenceList" 
+                :key="song.id"
+                @click="selectItem(song)">
                 <i class="current" :class="getCurrentIcon(song)"></i>
                 <span class="text">{{song.name}}</span>
                 <span class="favorite" @click.stop="toggleFavorite(song)">
                   <i :class="getFavoriteIcon(song)"></i>
                 </span>
-                <span class="delete">
+                <span 
+                  class="delete" 
+                  @click.stop="removeSong(song)" 
+                  :class="{'disable':removing}">
                   <i class="icon-delete"></i>
                 </span>
               </li>
@@ -59,7 +66,7 @@
 
 <script>
 import scroll from '@/components/scroll/scroll'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref,watch } from 'vue'
 import { useStore } from 'vuex'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
@@ -69,6 +76,9 @@ export default {
   },
   setup() {
     const visible = ref(false)
+    const scrollRef = ref(null)
+    const listRef = ref(null)
+    const removing = ref(false)
 
     const store = useStore()
     const playlist = computed(() => store.state.playlist)
@@ -77,6 +87,12 @@ export default {
 
     const { modeIcon,modeText, changeMode } = useMode()
     const { getFavoriteIcon,toggleFavorite  } = useFavorite()
+
+    watch(currentSong,async (newSong) => {
+      if(!visible.value && !newSong.id) return
+      await nextTick()
+      scrollToCurrent()
+    })
 
     const getCurrentIcon = (song) => {
       if(song.id === currentSong.value.id) {
@@ -88,16 +104,52 @@ export default {
 
     }
 
-    const show = () => {
+    async function show() {
       visible.value = true
+      await nextTick()
+      scrollToCurrent()
     }
 
     const hide = () => {
       visible.value = false
     }
 
+    const selectItem = (song) => {
+      let index = playlist.value.findIndex(item => {
+        return item.id === song.id
+      })
+      store.commit('setCurrentIndex',index)
+      store.commit('setPlayingState',true)
+    }
+
+    // 滚动到选择的歌曲位置
+    const scrollToCurrent = () => {
+      let index = sequenceList.value.findIndex(item => {
+        return item.id === currentSong.value.id
+      })
+      // 快速点击时，可能会报错的解决
+      if(index === -1) {
+        return
+      }
+      let target = listRef.value.$el.children[index]
+      let scrollRefEl = scrollRef.value
+      scrollRefEl.scroll.scrollToElement(target, 300)
+    }
+
+    const removeSong = (song) => {
+      if(removing.value) return
+      removing.value = true
+      store.dispatch('removeSong', song)
+      setTimeout(() => {
+        removing.value = false
+      }, 300)
+    }
+
     return {
       visible,
+      scrollRef,
+      listRef,
+      removing,
       playlist,
       currentSong,
       sequenceList,
@@ -105,6 +157,8 @@ export default {
       showConfirm,
       show,
       hide,
+      selectItem,
+      removeSong,
       // useMode
       modeIcon,
       modeText,
