@@ -1,5 +1,5 @@
 <template>
-  <div class="singer-detail">
+  <div class="recommend-detail">
     <music-list
       :pic="computedData.pic"
       :title="computedData.name"
@@ -10,11 +10,11 @@
 </template>
 
 <script>
-import { getSingerDetail } from '@/api/singer'
+import { getAlbum } from '@/api/recommend'
 import { processSongs } from '@/api/song'
 import musicList from '@/components/music-list/music-list'
 export default {
-  name: 'singerDetail',
+  name: 'recommendDetail',
   props: {
     data: {
       type: Object
@@ -25,7 +25,7 @@ export default {
   },
   data() {
     return {
-      mid: this.$route.params.id,
+      id: this.$route.params.id,
       songs: [],
       loading: true
     }
@@ -37,23 +37,23 @@ export default {
       if(data) {
         result = data
       } else {
-        let singerKey = JSON.parse(sessionStorage.getItem('singerKey'))
-        if(singerKey && singerKey.mid == this.mid) {
-          result = singerKey
+        let albumKey = JSON.parse(sessionStorage.getItem('albumKey'))
+        if(albumKey && albumKey.id == this.id) {
+          result = albumKey
         }
       }
       return result
     }
   },
   mounted() {
-    this._getSingerDetail()
+    this._getAlbum()
   },
   destroyed() {
     window.removeEventListener('scroll',this.handleScroll,true)
   },
   methods: {
-    _getSingerDetail() {
-      getSingerDetail(this.mid).then(res => {
+    _getAlbum() {
+      getAlbum(this.id).then(res => {
         let data = res.data.result
         this.loading = false
         if(data.songs.length) {
@@ -72,7 +72,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .singer-detail {
+  .recommend-detail {
     position: fixed;
     z-index: 10;
     top: 0;

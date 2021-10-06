@@ -67,3 +67,11 @@ function findIndex(list,song) {
     return item.id === song.id
   })
 }
+
+export function clearSongList({commit}) {
+  commit('setSequenceList',[])
+  commit('setPlaylist',[])
+  commit('setCurrentIndex',0)
+  // 清空后把播放状态也重置
+  commit('setPlayingState', false)
+}

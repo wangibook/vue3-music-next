@@ -59,6 +59,11 @@
           </div>
           <div class="list-footer" @click="hide">关闭</div>
         </div>
+        <confirm-com 
+          ref="confirmRef"
+          text="是否清空播放列表？"
+          @confirm="confirmClear">
+        </confirm-com>
       </div>
     </transition>
   </teleport>
@@ -66,19 +71,22 @@
 
 <script>
 import scroll from '@/components/scroll/scroll'
+import confirmCom from '@/components/confirm/confirm'
 import { computed, nextTick, ref,watch } from 'vue'
 import { useStore } from 'vuex'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
 export default {
   components: {
-    scroll
+    scroll,
+    confirmCom
   },
   setup() {
     const visible = ref(false)
     const scrollRef = ref(null)
     const listRef = ref(null)
     const removing = ref(false)
+    const confirmRef = ref(null)
 
     const store = useStore()
     const playlist = computed(() => store.state.playlist)
@@ -101,7 +109,7 @@ export default {
     }
 
     const showConfirm = () => {
-
+      confirmRef.value.show()
     }
 
     async function show() {
@@ -140,15 +148,25 @@ export default {
       if(removing.value) return
       removing.value = true
       store.dispatch('removeSong', song)
+      // 如果单首歌曲一直删完，也要把visible状态重置
+      if(!playlist.value.length) {
+        hide()
+      }
       setTimeout(() => {
         removing.value = false
       }, 300)
+    }
+    // 清空播放列表歌曲
+    function confirmClear() {
+      store.dispatch('clearSongList')
+      hide()
     }
 
     return {
       visible,
       scrollRef,
       listRef,
+      confirmRef,
       removing,
       playlist,
       currentSong,
@@ -159,6 +177,7 @@ export default {
       hide,
       selectItem,
       removeSong,
+      confirmClear,
       // useMode
       modeIcon,
       modeText,

@@ -26,6 +26,12 @@
         </li>
       </ul>
     </div>
+
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="selectedAlbum"/>
+      </transition>
+    </router-view>
   </div>
 </template>
 
@@ -37,6 +43,7 @@ export default {
     return {
       sliders: [],
       albums: [],
+      selectedAlbum: null
     }
   },
   computed: {
@@ -55,8 +62,12 @@ export default {
         this.albums = data.albums
       })
     },
-    selectItem() {
-
+    selectItem(album) {
+      this.selectedAlbum = album
+      sessionStorage.setItem('albumKey',JSON.stringify(album))
+      this.$router.push({
+        path: `/recommend/${album.id}`
+      })
     }
   }
 }

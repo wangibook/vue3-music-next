@@ -6,3 +6,13 @@ export function getRecommend() {
     method: 'get'
   })
 }
+
+export function getAlbum(id) {
+  return request({
+    url: '/api/getAlbum',
+    method: 'get',
+    params: {
+      id
+    }
+  })
+}

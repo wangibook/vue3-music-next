@@ -61,6 +61,9 @@ export default {
     }
   },
   computed: {
+    ...mapState([
+      'playlist'
+    ]),
     bgImageStyle() {
       let paddingTop = '70%'
         
@@ -86,8 +89,12 @@ export default {
       if(height < 40) {
         height = `${RESERVED_HEIGHT}px`
       }
+
+      // 歌曲滚动列表距底部距离，防止有一部分被遮挡
+      let bottom = this.playlist.length ? '60px' : '0'
       return {
-        top: `${height}px`
+        top: `${height}px`,
+        bottom
       }
     },
     filterStyle() {
