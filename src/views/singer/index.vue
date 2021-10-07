@@ -13,6 +13,7 @@
 <script>
 import { getSingerList } from '@/api/singer'
 import indexList from '@/components/index-list/index-list'
+import { SINGER_KEY } from '@/assets/js/constant'
 export default {
   name: 'singer',
   components: {
@@ -36,7 +37,7 @@ export default {
     },
     selectSinger(singer) {
       this.selectedSinger = singer
-      sessionStorage.setItem('singerKey',JSON.stringify(singer))
+      sessionStorage.setItem(SINGER_KEY,JSON.stringify(singer))
       this.$router.push({
         path: `/singer/${singer.mid}`
       })

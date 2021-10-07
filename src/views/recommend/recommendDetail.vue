@@ -2,7 +2,7 @@
   <div class="recommend-detail">
     <music-list
       :pic="computedData.pic"
-      :title="computedData.name"
+      :title="computedData.title"
       :songs="songs"
       :loading="loading">
     </music-list>
@@ -11,64 +11,11 @@
 
 <script>
 import { getAlbum } from '@/api/recommend'
-import { processSongs } from '@/api/song'
-import musicList from '@/components/music-list/music-list'
-export default {
-  name: 'recommendDetail',
-  props: {
-    data: {
-      type: Object
-    }
-  },
-  components: {
-    musicList
-  },
-  data() {
-    return {
-      id: this.$route.params.id,
-      songs: [],
-      loading: true
-    }
-  },
-  computed: {
-    computedData() {
-      let result = null
-      const data = this.data
-      if(data) {
-        result = data
-      } else {
-        let albumKey = JSON.parse(sessionStorage.getItem('albumKey'))
-        if(albumKey && albumKey.id == this.id) {
-          result = albumKey
-        }
-      }
-      return result
-    }
-  },
-  mounted() {
-    this._getAlbum()
-  },
-  destroyed() {
-    window.removeEventListener('scroll',this.handleScroll,true)
-  },
-  methods: {
-    _getAlbum() {
-      getAlbum(this.id).then(res => {
-        let data = res.data.result
-        this.loading = false
-        if(data.songs.length) {
-          this._processSongs(data.songs)
-        }
-      })
-    },
-    _processSongs(dataArr) {
-      processSongs(dataArr).then(result => {
-        this.songs = result
-        this.loading = false
-      })
-    }
-  }
-}
+import { ALBUM_KEY } from '@/assets/js/constant'
+import createDetailComponent from '@/assets/js/create-detail-component'
+
+export default createDetailComponent('recommendDetail',ALBUM_KEY,getAlbum)
+
 </script>
 
 <style lang="scss" scoped>

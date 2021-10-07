@@ -37,6 +37,7 @@
 
 <script>
 import { getRecommend } from '@/api/recommend'
+import { ALBUM_KEY } from '@/assets/js/constant'
 export default {
   name: 'recommend',
   data() {
@@ -64,7 +65,7 @@ export default {
     },
     selectItem(album) {
       this.selectedAlbum = album
-      sessionStorage.setItem('albumKey',JSON.stringify(album))
+      sessionStorage.setItem(ALBUM_KEY,JSON.stringify(album))
       this.$router.push({
         path: `/recommend/${album.id}`
       })

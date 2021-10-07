@@ -11,64 +11,10 @@
 
 <script>
 import { getSingerDetail } from '@/api/singer'
-import { processSongs } from '@/api/song'
-import musicList from '@/components/music-list/music-list'
-export default {
-  name: 'singerDetail',
-  props: {
-    data: {
-      type: Object
-    }
-  },
-  components: {
-    musicList
-  },
-  data() {
-    return {
-      mid: this.$route.params.id,
-      songs: [],
-      loading: true
-    }
-  },
-  computed: {
-    computedData() {
-      let result = null
-      const data = this.data
-      if(data) {
-        result = data
-      } else {
-        let singerKey = JSON.parse(sessionStorage.getItem('singerKey'))
-        if(singerKey && singerKey.mid == this.mid) {
-          result = singerKey
-        }
-      }
-      return result
-    }
-  },
-  mounted() {
-    this._getSingerDetail()
-  },
-  destroyed() {
-    window.removeEventListener('scroll',this.handleScroll,true)
-  },
-  methods: {
-    _getSingerDetail() {
-      getSingerDetail(this.mid).then(res => {
-        let data = res.data.result
-        this.loading = false
-        if(data.songs.length) {
-          this._processSongs(data.songs)
-        }
-      })
-    },
-    _processSongs(dataArr) {
-      processSongs(dataArr).then(result => {
-        this.songs = result
-        this.loading = false
-      })
-    }
-  }
-}
+import { SINGER_KEY } from '@/assets/js/constant'
+import createDetailComponent from '@/assets/js/create-detail-component'
+
+export default createDetailComponent('singerDetail',SINGER_KEY,getSingerDetail)
 </script>
 
 <style lang="scss" scoped>

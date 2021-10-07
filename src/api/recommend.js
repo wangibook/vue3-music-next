@@ -7,12 +7,12 @@ export function getRecommend() {
   })
 }
 
-export function getAlbum(id) {
+export function getAlbum(album) {
   return request({
     url: '/api/getAlbum',
     method: 'get',
     params: {
-      id
+      id:album.id
     }
   })
 }

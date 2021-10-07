@@ -18,17 +18,23 @@
         </ul>
       </li>
     </ul>
-    <router-view></router-view>
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="selectedTop"/>
+      </transition>
+    </router-view>
   </div>
 </template>
 
 <script>
 import { getTopList } from '@/api/topList'
+import { TOP_KEY } from '@/assets/js/constant'
 export default {
   name: 'topList',
   data() {
     return {
-      topList: []
+      topList: [],
+      selectedTop: null
     }
   },
   mounted() {
@@ -42,6 +48,8 @@ export default {
       })
     },
     selectItem(top) {
+      this.selectedTop = top
+      sessionStorage.setItem(TOP_KEY,JSON.stringify(top))
       this.$router.push({
         path: `/topList/${top.id}`
       })
