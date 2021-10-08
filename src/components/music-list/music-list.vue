@@ -21,6 +21,7 @@
       <song-list 
         v-if="songs.length" 
         :songs="songs"
+        :rank="rank"
         @select="selectItem">
       </song-list>
       <div class="no-result" v-else>
@@ -47,6 +48,9 @@ export default {
       type: Array
     },
     loading: {
+      type: Boolean
+    },
+    rank: {
       type: Boolean
     }
   },

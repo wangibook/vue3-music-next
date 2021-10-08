@@ -27,7 +27,7 @@ export default function createDetailComponent(name,key,fetch) {
           result = data
         } else {
           let cached = JSON.parse(sessionStorage.getItem(key))
-          if(cached && cached.mid == this.id) {
+          if(cached && (cached.mid || cached.id) == this.id) {
             result = cached
           }
         }

@@ -4,7 +4,8 @@
       :pic="computedData.pic"
       :title="computedData.name"
       :songs="songs"
-      :loading="loading">
+      :loading="loading"
+      rank>
     </music-list>
   </div>
 </template>
