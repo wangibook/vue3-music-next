@@ -614,13 +614,13 @@ function registerHotKeys(app) {
 // 注册搜索查询接口
 function registerSearch(app) {
   app.get('/api/search', (req, res) => {
-    const url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
+    const url = 'https://shc.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
 
     const { query, page, showSinger } = req.query
 
     const data = {
       _: getRandomVal(),
-      g_tk_new_20200303: token,
+      g_tk: token,
       w: query,
       p: page,
       perpage: 20,
@@ -630,6 +630,8 @@ function registerSearch(app) {
       t: 0,
       flag: 1,
       ie: 'utf-8',
+      inCharset: 'utf-8',
+      outCharset: 'utf-8',
       sem: 1,
       aggr: 0,
       remoteplace: 'txt.mqq.all',
