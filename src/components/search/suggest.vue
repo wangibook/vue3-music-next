@@ -1,5 +1,8 @@
 <template>
-  <div class="suggest" v-loading="loading">
+  <div 
+    class="suggest"
+    ref="rootRef" 
+    v-loading="loading">
     <ul class="suggest-list">
       <li
         class="suggest-item"
@@ -28,6 +31,10 @@
           </p>
         </div>
       </li>
+      <div
+        class="suggest-item"
+        v-loading="pullUpLoading"
+      ></div>
     </ul>
   </div>
 </template>
@@ -36,6 +43,7 @@
 import { computed, ref, watch } from 'vue'
 import { search } from '@/api/search'
 import { processSongs } from '@/api/song'
+import usePullUpLoad from './use-pull-up-load'
 
 export default {
   props: {
@@ -45,22 +53,32 @@ export default {
       default: true
     }
   },
-  setup(props) {
+  emits: ['select-singer','select-song'],
+  setup(props,{ emit }) {
     const singer = ref(null)
     const songs = ref([])
     const hasMore = ref(true)
     const page = ref(1)
 
+    const { scroll,rootRef,isPullUpLoad } = usePullUpLoad(searchMore)
+
     const loading = computed(() => {
       return !singer.value && !songs.value.length
     })
 
+    const pullUpLoading = computed(() => {
+      return isPullUpLoad.value && hasMore.value
+    })
+
+    // watch这里监听的是props.query 响应式对象，不能直接监听它
+    // 通过一个函数返回要监听的属性
     watch(() => props.query, async (newQuery) => {
       if(!newQuery) return
       await searchFirst()
     })
 
     async function searchFirst() {
+      if(!props.query) return
       page.value = 1
       songs.value = []
       singer.value = null
@@ -77,19 +95,36 @@ export default {
       hasMore.value = result.hasMore
     }
 
-    const selectSinger = (singer) => {
+    async function searchMore() {
+      if(!hasMore.value || !props.query) return
+      page.value++
+      let data = {
+        query: props.query,
+        page: page.value,
+        showSinger: props.showSinger
+      }
+      const res = await search(data)
+      const result = res.data.result
+      songs.value = songs.value.concat(await processSongs(result.songs))
+      hasMore.value = result.hasMore
+    }
 
+    const selectSinger = (singer) => {
+      emit('select-singer',singer)
     }
     const selectSong = (song) => {
-
+      emit('select-song',song)
     }
 
     return {
       singer,
       songs,
       loading,
+      pullUpLoading,
       selectSinger,
-      selectSong
+      selectSong,
+      //pullUpLoad
+      rootRef
     }
   }
 }
@@ -123,6 +158,19 @@ export default {
         }
       }
     }
+  }
+}
+
+.no-result{
+  text-align: center;
+  padding-top: 50px;
+  img{
+    width: 120px;
+    height: 120px;
+  }
+  .word{
+    color: #666;
+    padding-top: 10px;
   }
 }
 </style>

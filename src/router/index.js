@@ -17,7 +17,6 @@ const routes = [
     children: [
       {
         path: ':id',
-        name: 'recommendDetail',
         component: () => import(/* webpackChunkName: "recommendDetail" */ '../views/recommend/recommendDetail')
       }
     ]
@@ -29,7 +28,6 @@ const routes = [
     children: [
       {
         path: ':id',
-        name: 'singerDetail',
         component: () => import(/* webpackChunkName: "singerDetail" */ '../views/singer/singerDetail')
       }
     ]
@@ -48,7 +46,13 @@ const routes = [
   {
     path: '/search',
     name: 'search',
-    component: () => import(/* webpackChunkName: "search" */ '../views/search')
+    component: () => import(/* webpackChunkName: "search" */ '../views/search'),
+    children: [
+      {
+        path: ':id',
+        component: () => import(/* webpackChunkName: "singerDetail" */ '../views/singer/singerDetail')
+      }
+    ]
   },
 ]
 
