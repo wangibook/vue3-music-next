@@ -15,10 +15,10 @@ export default function useFavorite() {
     let list = []
     if(isFavorite(song)) {
       // 移除
-      list = remove(song)
+      list = remove(song,FAVORITE_KEY)
     } else {
       // 加入
-      list = save(song, maxLen)
+      list = save(song, FAVORITE_KEY, maxLen)
     }
     store.commit('setFavoriteList', list)
   }
@@ -29,20 +29,20 @@ export default function useFavorite() {
     }) > -1
   }
 
-  const save = (song,maxLen) => {
+  const save = (song, key, maxLen) => {
     // 从缓存中读取现有数据
-    let items = JSON.parse(localStorage.getItem(FAVORITE_KEY)) || []
+    let items = JSON.parse(localStorage.getItem(key)) || []
     items.unshift(song)
     if(maxLen && items.length > maxLen) {
       items.pop()
     }
     
-    localStorage.setItem(FAVORITE_KEY,JSON.stringify(items))
+    localStorage.setItem(key,JSON.stringify(items))
     return items
   }
 
-  const remove = (song) => {
-    let items = JSON.parse(localStorage.getItem(FAVORITE_KEY)) || []
+  const remove = (song,key) => {
+    let items = JSON.parse(localStorage.getItem(key)) || []
     let index = items.findIndex(item => {
       return item.id === song.id
     })
@@ -50,7 +50,7 @@ export default function useFavorite() {
       items.splice(index, 1)
     }
 
-    localStorage.setItem(FAVORITE_KEY,JSON.stringify(items))
+    localStorage.setItem(key,JSON.stringify(items))
     return items
   }
 
