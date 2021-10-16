@@ -52,7 +52,7 @@
             </transition-group>
           </scroll>
           <div class="list-add">
-            <div class="add">
+            <div class="add" @click="showAddSong">
               <i class="icon-add"></i>
               <span class="text">添加歌曲到队列</span>
             </div>
@@ -64,6 +64,8 @@
           text="是否清空播放列表？"
           @confirm="confirmClear">
         </confirm-com>
+        <!-- 添加歌曲到队列 -->
+        <add-song ref="addSongRef"></add-song>
       </div>
     </transition>
   </teleport>
@@ -72,6 +74,7 @@
 <script>
 import scroll from '@/components/scroll/scroll'
 import confirmCom from '@/components/confirm/confirm'
+import addSong from '@/components/add-song/add-song'
 import { computed, nextTick, ref,watch } from 'vue'
 import { useStore } from 'vuex'
 import useMode from './use-mode'
@@ -79,7 +82,8 @@ import useFavorite from './use-favorite'
 export default {
   components: {
     scroll,
-    confirmCom
+    confirmCom,
+    addSong
   },
   setup() {
     const visible = ref(false)
@@ -87,6 +91,7 @@ export default {
     const listRef = ref(null)
     const removing = ref(false)
     const confirmRef = ref(null)
+    const addSongRef = ref(null)
 
     const store = useStore()
     const playlist = computed(() => store.state.playlist)
@@ -162,11 +167,16 @@ export default {
       hide()
     }
 
+    function showAddSong() {
+      addSongRef.value.show()
+    }
+
     return {
       visible,
       scrollRef,
       listRef,
       confirmRef,
+      addSongRef,
       removing,
       playlist,
       currentSong,
@@ -178,6 +188,7 @@ export default {
       selectItem,
       removeSong,
       confirmClear,
+      showAddSong,
       // useMode
       modeIcon,
       modeText,

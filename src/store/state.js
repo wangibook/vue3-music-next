@@ -9,7 +9,8 @@ const state = {
   playMode: PLAY_MODE.sequence,
   playing: false,  // 播放状态, 默认不播放
   favoriteList: JSON.parse(localStorage.getItem(FAVORITE_KEY)) || [],  // 收藏歌曲列表
-  searchHistory: JSON.parse(localStorage.getItem(SEARCH_KEY)) || []
+  searchHistory: JSON.parse(localStorage.getItem(SEARCH_KEY)) || [],
+  playHistory: []
 }
 
 export default state

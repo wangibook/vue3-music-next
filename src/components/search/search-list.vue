@@ -9,6 +9,7 @@
         <span class="text">{{item}}</span>
         <span
           class="icon"
+          v-if="showDelete"
           @click.stop="deleteItem(item)"
         >
           <i class="icon-delete"></i>
@@ -23,6 +24,10 @@ export default {
   props: {
     searches: {
       type: Array
+    },
+    showDelete: {
+      type: Boolean,
+      default: true
     }
   },
   emits: ['select','delete'],

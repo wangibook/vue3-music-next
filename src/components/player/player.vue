@@ -114,6 +114,7 @@ import useCd from './use-cd'
 import useLyric from './use-lyric'
 import useMiddleInteractive from './use-middle-interactive'
 import useAnimation from './use-animation'
+import usePlayHistory from './use-play-history'
 import progressBar from './progress-bar'
 import miniPlayer from './mini-player'
 import scroll from '@/components/scroll/scroll'
@@ -149,6 +150,7 @@ export default {
     const { currentLyric,currentLineNum,lyricScrollRef,lyricListRef,pureMusicLyric,playingLyric,playLyric,stopLyric } = useLyric({songReady,currentTime})
     const { currentShow,middleLStyle,middleRStyle,onMiddleTouchStart,onMiddleTouchMove,onMiddleTouchEnd } = useMiddleInteractive()
     const { cdWrapperRef,enter, afterEnter, leave, afterLeave } = useAnimation()
+    const { savePlay } = usePlayHistory()
     
     // computed
     const playIcon = computed(() => {
@@ -251,6 +253,8 @@ export default {
     const ready = () => {
       if(songReady.value) return
       songReady.value = true
+      // 保存播放的歌曲，用于在最近播放中展示
+      savePlay(currentSong.value)
     }
 
     const error = () => {
