@@ -20,7 +20,8 @@
             v-model="currentIndex"
           ></switches>
           <div class="list-wrapper">
-            <scroll 
+            <scroll
+              ref="scrollRef" 
               class="list-scroll" 
               v-if="currentIndex===0">
               <div class="list-inner">
@@ -31,6 +32,7 @@
               </div>
             </scroll>
             <scroll 
+              ref="scrollRef"
               class="list-scroll" 
               v-if="currentIndex===1">
               <div class="list-inner">
@@ -49,6 +51,12 @@
             :showSinger="false"
             @select-song="selectSongBySuggest" />
         </div>
+        <message ref="messageRef">
+          <div class="message-title">
+            <i class="icon-ok"></i>
+            <span class="text">1首歌曲已添加到播放列表</span>
+          </div>
+        </message>
       </div>
     </transition>
   </teleport>
@@ -58,10 +66,11 @@
 import searchInput from '@/components/search/search-input'
 import suggest from '@/components/search/suggest'
 import switches from '@/components/switches/switches'
-import scroll from '../../components/scroll/scroll'
+import scroll from '@/components/scroll/scroll'
 import songList from '@/components/song-list/song-list'
 import searchList from '@/components/search/search-list'
-import { computed, ref } from 'vue'
+import message from '@/components/message/message'
+import { computed, ref, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
 import useSearchHistory from '@/components/search/use-search-history'
 
@@ -72,12 +81,15 @@ export default {
     switches,
     songList,
     searchList,
-    scroll
+    scroll,
+    message
   },
   setup() {
     const visible = ref(false)
     const query = ref('')
     const currentIndex = ref(0)
+    const scrollRef = ref(null)
+    const messageRef = ref(null)
 
     const store = useStore()
 
@@ -86,12 +98,24 @@ export default {
 
     const { saveSearch } = useSearchHistory()
 
-    function show() {
+    watch(query,async () => {
+      await nextTick()
+      refreshScroll()
+    })
+
+    // dom在数据渲染前就已经有了，解决首次进入无法滚动的问题
+    async function show() {
       visible.value = true
+      await nextTick()
+      refreshScroll()
     }
 
     function hide() {
       visible.value = false
+    }
+
+    function refreshScroll() {
+      scrollRef.value.scroll.refresh()
     }
 
     function selectSongBySuggest(song) {
@@ -110,11 +134,18 @@ export default {
 
     function addSong(song) {
       store.dispatch('addSong',song)
+      showMessage()
+    }
+
+    function showMessage() {
+      messageRef.value.show()
     }
 
     return {
       visible,
       query,
+      scrollRef,
+      messageRef,
       currentIndex,
       playHistory,
       searchHistory,
@@ -172,6 +203,21 @@ export default {
         padding: 20px 30px;
       }
     }
+  }
+}
+
+.message-title {
+  text-align: center;
+  padding: 18px 0;
+  font-size: 0;
+  .icon-ok {
+    font-size: $font-size-medium;
+    color: $color-theme;
+    margin-right: 4px;
+  }
+  .text {
+    font-size: $font-size-medium;
+    color: $color-text;
   }
 }
 </style>
