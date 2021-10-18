@@ -1,5 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
+const User = () => import(/* webpackChunkName: "user" */ '../views/user')
+
 const routes = [
   {
     path: '/',
@@ -8,7 +10,9 @@ const routes = [
   {
     path: '/user',
     name: 'user',
-    component: () => import(/* webpackChunkName: "user" */ '../views/user')
+    components: {
+      user: User
+    }
   },
   {
     path: '/recommend',

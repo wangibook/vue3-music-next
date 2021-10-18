@@ -47,4 +47,12 @@ export default {
   z-index: 400;
   background: $color-dialog-background;
 }
+
+.slide-down-enter-active, .slide-down-leave-active {
+  transition: all 0.3s
+}
+
+.slide-down-enter-from, .slide-down-leave-to {
+  transform: translate3d(0, -100%, 0)
+}
 </style>

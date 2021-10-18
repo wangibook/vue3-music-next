@@ -24,6 +24,7 @@ export default function useScroll(wrapperRef, options, emit) {
     scroll.value.destroy()
   })
 
+  // 使用keep-alive后，生命周期钩子会失效，用onActivated，onDeactivated取代
   onActivated(() => {
     scroll.value.enable()
     scroll.value.refresh()

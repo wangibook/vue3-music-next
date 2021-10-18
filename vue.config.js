@@ -26,5 +26,14 @@ module.exports = {
     before(app) {
       registerRouter(app)
     }
-  }
+  },
+  // npm run build --report来调用webpack-bundle-analyzer插件
+  // 实际上执行npm run build --report时，在process.env对象内添加了一个属性
+  configureWebpack: (config) => {
+    if(process.env.npm_config_report) {
+      const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+      config.plugins.push(new BundleAnalyzerPlugin())
+    }
+  },
+  productionSourceMap: false
 }
