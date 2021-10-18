@@ -15,7 +15,7 @@ import loadingDirective from '@/components/loading/loading'
 import '@/assets/scss/index.scss'
 
 // 针对歌曲url失效
-let favoriteList = JSON.parse(localStorage.getItem(FAVORITE_KEY))
+let favoriteList = JSON.parse(localStorage.getItem(FAVORITE_KEY)) || []
 if(favoriteList.length > 0) {
   processSongs(favoriteList).then(songs => {
     store.commit('setFavoriteList',songs)
@@ -23,7 +23,7 @@ if(favoriteList.length > 0) {
   })
 }
 
-let playHistory = JSON.parse(localStorage.getItem(PLAY_KEY))
+let playHistory = JSON.parse(localStorage.getItem(PLAY_KEY)) || []
 if(playHistory.length > 0) {
   processSongs(playHistory).then(songs => {
     store.commit('setPlayHistory',songs)
