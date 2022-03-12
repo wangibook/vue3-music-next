@@ -136,6 +136,7 @@ export default {
     const scrollTo = (index) => {
       if(index < 0 || index > shortcutList.value.length - 1) return
       const element = groupRef.value
+      console.log(element);
       // 对应的目标区域
       const targetEl = element.children[index]
       // 滚动到目标区域
